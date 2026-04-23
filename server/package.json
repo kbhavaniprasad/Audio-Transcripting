@@ -1,0 +1,22 @@
+{
+  "name": "audio-analysis-server",
+  "version": "1.0.0",
+  "description": "Express backend for audio upload + n8n webhook proxy",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.18.3",
+    "form-data": "^4.0.0",
+    "multer": "^2.1.1",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
