@@ -9,16 +9,19 @@ const app  = express();
 const PORT = process.env.PORT || 5000;
 
 // ── CORS ────────────────────────────────────
-// Allow the React dev server (Vite default: 5173)
-// and any localhost port during development
+// Allow the React dev server (Vite default: 5173),
+// any localhost port during development,
+// and the deployed Vercel frontend
 app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:3000',
     'http://127.0.0.1:5173',
+    'https://audio-transcripting.vercel.app',   // ← deployed Vercel frontend
   ],
   methods: ['GET', 'POST', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
 }));
 
 // ── Body parsers ─────────────────────────────
