@@ -1,8 +1,8 @@
 import React, { useCallback, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Requests go to our local Express backend, which then proxies to n8n
-const API_URL = 'http://localhost:5000/api/audio/upload';
+// Requests go to our Express backend (Render in production)
+const API_URL = `${import.meta.env.VITE_API_URL || 'https://audio-analysis-89ns.onrender.com'}/api/audio/upload`;
 
 const WaveformBars = () => (
   <div style={{ display: 'flex', alignItems: 'center', gap: '3px', height: '28px' }}>
