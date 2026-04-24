@@ -26,7 +26,7 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
   try {
     // ── Forward to n8n webhook ──
     const form = new FormData();
-    form.append('audio', fs.createReadStream(filePath), {
+    form.append('data', fs.createReadStream(filePath), {
       filename: originalname,
       contentType: mimetype,
     });
