@@ -66,7 +66,20 @@ function getIcon(key) {
 export default function ResultDisplay({ result, file, onReset }) {
   if (!result) return null;
 
-  const entries = Object.entries(result);
+  // If n8n returned a plain string, wrap it so we can display it
+  const normalized = typeof result === 'string' ? { output: result } : result;
+  const entries = Object.entries(normalized);
+
+  // Nothing to render
+  if (entries.length === 0) {
+    return (
+      <div style={{ color: 'rgba(255,255,255,0.5)', textAlign: 'center', padding: 40 }}>
+        ✓ Workflow completed but returned no displayable data.<br />
+        <small>Check the browser console for raw JSON.</small>
+      </div>
+    );
+  }
+
 
   return (
     <AnimatePresence>
@@ -192,7 +205,7 @@ export default function ResultDisplay({ result, file, onReset }) {
             overflowX: 'auto',
             lineHeight: 1.6,
           }}>
-            {JSON.stringify(result, null, 2)}
+            {JSON.stringify(normalized, null, 2)}
           </pre>
         </details>
 

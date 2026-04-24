@@ -85,8 +85,12 @@ export default function AudioUploader({ onResult }) {
         throw new Error(data.error || `Server responded with ${response.status}`);
       }
 
-      // data.result contains the parsed n8n webhook response
-      onResult(data.result, file);
+      // Debug: log exactly what n8n returned
+      console.log('[n8n raw result]', JSON.stringify(data.result, null, 2));
+
+      // n8n sometimes returns an array [{ ... }] — unwrap it
+      const result = Array.isArray(data.result) ? data.result[0] : data.result;
+      onResult(result, file);
     } catch (err) {
       setError(`Upload failed: ${err.message}`);
     } finally {
