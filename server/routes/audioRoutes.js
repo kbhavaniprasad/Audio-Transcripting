@@ -77,9 +77,16 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
     // ── Webhook returned an error status ──
     if (!webhookResponse.ok) {
       console.error(`[N8N]  Webhook error ${webhookResponse.status}:`, webhookData);
+
+      // ngrok returns 502 when the tunnel is offline (no local process connected)
+      const isNgrokDown = webhookResponse.status === 502 || webhookResponse.status === 503;
+      const errorMsg = isNgrokDown
+        ? 'ngrok tunnel is offline. Start ngrok on your machine: ngrok http 5678 --domain=ruthenic-lucy-expositorially.ngrok-free.dev'
+        : `Webhook returned HTTP ${webhookResponse.status}. Make sure n8n workflow is activated (not just in test mode).`;
+
       return res.status(502).json({
         success: false,
-        error:   `Webhook returned HTTP ${webhookResponse.status}. Check that your n8n webhook URL is active and the workflow is enabled.`,
+        error:   errorMsg,
         detail:  webhookData,
       });
     }

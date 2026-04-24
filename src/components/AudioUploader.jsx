@@ -103,7 +103,19 @@ export default function AudioUploader({ onResult }) {
 
     try {
       const response = await attemptFetch();
-      const data     = await response.json();
+
+      // Safely parse body — Render proxy may return HTML on cold-start 502
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new Error(
+          `Server returned ${response.status}. ` +
+          (response.status === 502
+            ? 'ngrok tunnel is likely offline — run: ngrok http 5678 --domain=ruthenic-lucy-expositorially.ngrok-free.dev'
+            : 'Please try again in a moment.')
+        );
+      }
 
       if (!response.ok || !data.success) {
         throw new Error(data.error || `Server responded with ${response.status}`);
