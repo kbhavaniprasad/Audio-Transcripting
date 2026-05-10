@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-
 /* ─── Processing stages ─────────────────────────────────── */
 const STAGES = [
   { id: 1, label: 'Uploading Audio',          duration: 12 },
@@ -9,15 +8,6 @@ const STAGES = [
   { id: 4, label: 'Evaluating Pronunciation',  duration: 20 },
   { id: 5, label: 'Analyzing Fluency',         duration: 15 },
   { id: 6, label: 'Generating AI Report',      duration: 8  },
-];
-
-/* ─── Metric definitions ─────────────────────────────────── */
-const METRICS = [
-  { key: 'confidence',  label: 'Speech Confidence', color: '#38bdf8', icon: '🎯' },
-  { key: 'fluency',     label: 'Fluency Score',      color: '#a78bfa', icon: '🌊' },
-  { key: 'accent',      label: 'Accent Detection',   color: '#34d399', icon: '🔍' },
-  { key: 'stability',   label: 'Voice Stability',    color: '#f472b6', icon: '📊' },
-  { key: 'clarity',     label: 'Clarity Analysis',   color: '#fb923c', icon: '💎' },
 ];
 
 /* ─── Floating Particle ──────────────────────────────────── */
@@ -213,39 +203,6 @@ function StageRow({ stage, status }) {
   );
 }
 
-/* ─── Metric Radial ──────────────────────────────────────── */
-function MetricRadial({ metric, value }) {
-  const r = 22, circ = 2 * Math.PI * r;
-  const dash = (value / 100) * circ;
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-      <svg width="56" height="56" style={{ flexShrink: 0 }}>
-        <circle cx="28" cy="28" r={r} fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="4" />
-        <motion.circle cx="28" cy="28" r={r} fill="none" stroke={metric.color} strokeWidth="4"
-          strokeLinecap="round" strokeDasharray={`${circ}`}
-          initial={{ strokeDashoffset: circ }}
-          animate={{ strokeDashoffset: circ - dash }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
-          style={{ transform: 'rotate(-90deg)', transformOrigin: '28px 28px',
-            filter: `drop-shadow(0 0 4px ${metric.color})` }}
-        />
-        <text x="28" y="33" textAnchor="middle" fontSize="10" fontWeight="700" fill="white">{value}%</text>
-      </svg>
-      <div>
-        <p style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', marginBottom: 3 }}>{metric.icon} {metric.label}</p>
-        <div style={{ width: 90, height: 4, background: 'rgba(255,255,255,0.08)', borderRadius: 2 }}>
-          <motion.div style={{ height: '100%', borderRadius: 2, background: metric.color,
-            boxShadow: `0 0 8px ${metric.color}` }}
-            initial={{ width: 0 }}
-            animate={{ width: `${value}%` }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 /* ─── Waveform ───────────────────────────────────────────── */
 function AnimatedWaveform() {
   const bars = 48;
@@ -325,24 +282,6 @@ function useProgress() {
 /* ─── MAIN COMPONENT ─────────────────────────────────────── */
 export default function AIProcessingScreen({ file }) {
   const { progress, stageIndex } = useProgress();
-
-  // Animate metric values
-  const [metricVals, setMetricVals] = useState({ confidence: 0, fluency: 0, accent: 0, stability: 0, clarity: 0 });
-  useEffect(() => {
-    const targets = { confidence: 87, fluency: 74, accent: 91, stability: 68, clarity: 83 };
-    const iv = setInterval(() => {
-      setMetricVals(prev => {
-        const next = { ...prev };
-        let changed = false;
-        for (const k of Object.keys(targets)) {
-          if (prev[k] < targets[k]) { next[k] = Math.min(prev[k] + 1, targets[k]); changed = true; }
-        }
-        if (!changed) clearInterval(iv);
-        return next;
-      });
-    }, 35);
-    return () => clearInterval(iv);
-  }, []);
 
   return (
     <motion.div
@@ -454,15 +393,65 @@ export default function AIProcessingScreen({ file }) {
           </p>
         </div>
 
-        {/* ── RIGHT: Metrics ── */}
+        {/* ── RIGHT: AI Animation ── */}
         <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
           style={{
             background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)',
             borderRadius: 16, padding: 20, backdropFilter: 'blur(20px)',
+            display: 'flex', flexDirection: 'column'
           }}>
           <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(56,189,248,0.8)',
-            marginBottom: 14, textTransform: 'uppercase' }}>Real-time AI Metrics</p>
-          {METRICS.map(m => <MetricRadial key={m.key} metric={m} value={metricVals[m.key]} />)}
+            marginBottom: 14, textTransform: 'uppercase' }}>AI Assistant</p>
+          <div style={{ flex: 1, position: 'relative', borderRadius: 12, overflow: 'hidden', minHeight: '320px', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <motion.div
+              style={{
+                position: 'absolute', inset: 0,
+                background: 'radial-gradient(circle at center, rgba(56,189,248,0.15) 0%, transparent 60%)',
+              }}
+              animate={{ opacity: [0.3, 0.8, 0.3], scale: [0.9, 1.1, 0.9] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            <motion.div
+              style={{ position: 'relative', width: '100%', height: '100%', zIndex: 1 }}
+              animate={{ y: [-8, 8, -8] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              <img
+                src="/robot.png"
+                alt="AI Assistant Robot"
+                style={{
+                  width: '100%', height: '100%', objectFit: 'cover',
+                  WebkitMaskImage: 'radial-gradient(circle at center, black 50%, transparent 75%)',
+                  maskImage: 'radial-gradient(circle at center, black 50%, transparent 75%)',
+                  mixBlendMode: 'screen', pointerEvents: 'none'
+                }}
+              />
+              
+              {/* Face Processing Overlay */}
+              <div style={{
+                position: 'absolute', top: '33%', left: '50%', transform: 'translate(-50%, -50%)',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+                pointerEvents: 'none'
+              }}>
+                <div style={{ display: 'flex', gap: '3px', alignItems: 'center', height: '14px' }}>
+                  {[...Array(6)].map((_, i) => (
+                    <motion.div key={i}
+                      style={{ width: 3, borderRadius: 2, background: '#38bdf8', boxShadow: '0 0 6px #38bdf8' }}
+                      animate={{ height: [4, 14, 4] }}
+                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1, ease: 'easeInOut' }}
+                    />
+                  ))}
+                </div>
+                <motion.span 
+                  animate={{ opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  style={{ fontSize: '0.5rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.15em', textShadow: '0 0 5px #38bdf8' }}
+                >
+                  ANALYZING
+                </motion.span>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
       </div>
 

@@ -35,12 +35,9 @@ const VideoPlayer = memo(() => {
   return (
     <div
       style={{
-        position: 'absolute',
-        bottom: '35vh',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        position: 'relative',
         width: '100%',
-        height: '80vh',
+        height: '100%',
         zIndex: 0,
         overflow: 'hidden',
         pointerEvents: 'none',
