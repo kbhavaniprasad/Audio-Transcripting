@@ -396,13 +396,9 @@ export default function AIProcessingScreen({ file }) {
         {/* ── RIGHT: AI Animation ── */}
         <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
           style={{
-            background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 16, padding: 20, backdropFilter: 'blur(20px)',
-            display: 'flex', flexDirection: 'column'
+            display: 'flex', flexDirection: 'column', justifyContent: 'center'
           }}>
-          <p style={{ fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.12em', color: 'rgba(56,189,248,0.8)',
-            marginBottom: 14, textTransform: 'uppercase' }}>AI Assistant</p>
-          <div style={{ flex: 1, position: 'relative', borderRadius: 12, overflow: 'hidden', minHeight: '320px', background: 'rgba(0,0,0,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ flex: 1, position: 'relative', minHeight: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <motion.div
               style={{
                 position: 'absolute', inset: 0,
@@ -429,26 +425,26 @@ export default function AIProcessingScreen({ file }) {
               
               {/* Face Processing Overlay */}
               <div style={{
-                position: 'absolute', top: '33%', left: '50%', transform: 'translate(-50%, -50%)',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
-                pointerEvents: 'none'
+                position: 'absolute', top: '26%', left: '50%', transform: 'translate(-50%, -50%)',
+                display: 'flex', alignItems: 'center', gap: '5px',
+                pointerEvents: 'none', height: '28px'
               }}>
-                <div style={{ display: 'flex', gap: '3px', alignItems: 'center', height: '14px' }}>
-                  {[...Array(6)].map((_, i) => (
+                {[...Array(7)].map((_, i) => {
+                  const symIdx = i <= 3 ? i : 6 - i;
+                  const minH = 8 + symIdx * 3;
+                  const maxH = 14 + symIdx * 5;
+                  return (
                     <motion.div key={i}
-                      style={{ width: 3, borderRadius: 2, background: '#38bdf8', boxShadow: '0 0 6px #38bdf8' }}
-                      animate={{ height: [4, 14, 4] }}
-                      transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.1, ease: 'easeInOut' }}
+                      style={{ 
+                        width: 4, borderRadius: 2, 
+                        background: '#22d3ee', 
+                        boxShadow: '0 0 10px #06b6d4' 
+                      }}
+                      animate={{ height: [minH, maxH, minH] }}
+                      transition={{ duration: 0.6 + symIdx * 0.15, repeat: Infinity, delay: i * 0.08, ease: 'easeInOut' }}
                     />
-                  ))}
-                </div>
-                <motion.span 
-                  animate={{ opacity: [0.5, 1, 0.5] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  style={{ fontSize: '0.5rem', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.15em', textShadow: '0 0 5px #38bdf8' }}
-                >
-                  ANALYZING
-                </motion.span>
+                  );
+                })}
               </div>
             </motion.div>
           </div>
