@@ -31,7 +31,7 @@ const Spinner = () => (
   </svg>
 );
 
-export default function AudioUploader({ onResult }) {
+export default function AudioUploader({ onResult, onProcessing }) {
   const [file, setFile]           = useState(null);
   const [dragging, setDragging]   = useState(false);
   const [loading, setLoading]     = useState(false);
@@ -77,9 +77,10 @@ export default function AudioUploader({ onResult }) {
 
   const handleSubmit = async () => {
     if (!file) { setError('Please select an audio file first.'); return; }
-    setLoading(true);
     setError('');
-    setLoadingMsg('Uploading audio…');
+
+    // Notify App to show the processing screen immediately
+    if (onProcessing) onProcessing(file);
 
     const formData = new FormData();
     formData.append('audio', file);
@@ -93,7 +94,6 @@ export default function AudioUploader({ onResult }) {
         return await fetch(API_URL, { method: 'POST', body: formData });
       } catch (networkErr) {
         if (attempt < 2) {
-          setLoadingMsg('Server is waking up, retrying…');
           await new Promise(r => setTimeout(r, 4000));
           return attemptFetch(attempt + 1);
         }
@@ -126,10 +126,8 @@ export default function AudioUploader({ onResult }) {
       setServerStatus('ready');
       onResult(result, file);
     } catch (err) {
-      setError(`Upload failed: ${err.message}`);
-    } finally {
-      setLoading(false);
-      setLoadingMsg('Analyzing Audio…');
+      // Surface error back to App so it can hide the processing screen
+      onResult({ _error: err.message }, file);
     }
   };
 
@@ -258,29 +256,25 @@ export default function AudioUploader({ onResult }) {
       {/* Submit Button */}
       <motion.button
         onClick={handleSubmit}
-        disabled={loading || !file}
+        disabled={!file}
         whileTap={{ scale: 0.97 }}
         style={{
           width: '100%', marginTop: 14, padding: '14px', borderRadius: 12,
           border: '1px solid rgba(255,255,255,0.2)',
-          background: file && !loading ? 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)' : 'rgba(255,255,255,0.05)',
-          color: file && !loading ? '#fff' : 'rgba(255,255,255,0.3)',
-          fontSize: '0.9375rem', fontWeight: 600, cursor: file && !loading ? 'pointer' : 'not-allowed',
+          background: file ? 'linear-gradient(135deg, #8b5cf6 0%, #3b82f6 100%)' : 'rgba(255,255,255,0.05)',
+          color: file ? '#fff' : 'rgba(255,255,255,0.3)',
+          fontSize: '0.9375rem', fontWeight: 600, cursor: file ? 'pointer' : 'not-allowed',
           letterSpacing: '-0.01em', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10,
           fontFamily: 'Inter, sans-serif', transition: 'all 0.25s ease',
-          boxShadow: file && !loading ? '0 4px 24px rgba(139,92,246,0.35)' : 'none',
+          boxShadow: file ? '0 4px 24px rgba(139,92,246,0.35)' : 'none',
         }}
       >
-        {loading ? (
-          <><Spinner />{loadingMsg}</>
-        ) : (
-          <>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M5 12h14M12 5l7 7-7 7" />
-            </svg>
-            Submit for Analysis
-          </>
-        )}
+        <>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+          Submit for Analysis
+        </>
       </motion.button>
     </motion.div>
   );
