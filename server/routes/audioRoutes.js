@@ -38,9 +38,9 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
   console.log(`[UPLOAD] ${originalname}  (${(size / 1024).toFixed(1)} KB, ${mimetype})`);
   console.log(`[N8N]  → Forwarding to ${N8N_WEBHOOK_URL}`);
 
-  // ── AbortController for 60-second timeout ──
+  // ── AbortController for 300-second timeout (5 minutes for n8n processing) ──
   const controller = new AbortController();
-  const timeoutId  = setTimeout(() => controller.abort(), 60_000);
+  const timeoutId  = setTimeout(() => controller.abort(), 300_000);
 
   try {
     // ── Build multipart form ──
@@ -107,10 +107,10 @@ router.post('/upload', upload.single('audio'), async (req, res) => {
 
     // Timeout error
     if (err.name === 'AbortError') {
-      console.error('[ERROR] Webhook request timed out after 60s');
+      console.error('[ERROR] Webhook request timed out after 300s');
       return res.status(504).json({
         success: false,
-        error:   'Webhook timed out (60 s). Your n8n instance may be offline or the ngrok tunnel has expired.',
+        error:   'Webhook timed out (5 minutes). Your n8n instance may be offline or the ngrok tunnel has expired.',
       });
     }
 

@@ -360,11 +360,25 @@ export default function AIProcessingScreen({ file }) {
           <div style={{
             fontSize: '13px',
             color: 'rgba(255, 255, 255, 0.4)',
+            marginBottom: '12px',
           }}>
             {status === 'complete' 
               ? 'Ready to review results' 
               : 'Please wait while we process your audio'}
           </div>
+          {status !== 'complete' && (
+            <div style={{
+              fontSize: '12px',
+              color: 'rgba(250, 204, 21, 0.7)',
+              background: 'rgba(250, 204, 21, 0.08)',
+              border: '1px solid rgba(250, 204, 21, 0.2)',
+              borderRadius: '8px',
+              padding: '8px 12px',
+              maxWidth: '400px',
+            }}>
+              ⏱️ Processing may take up to 5 minutes. Please keep this window open.
+            </div>
+          )}
         </div>
 
         {/* Waveform visualization */}

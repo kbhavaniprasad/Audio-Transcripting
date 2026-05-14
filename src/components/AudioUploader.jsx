@@ -91,7 +91,12 @@ export default function AudioUploader({ onResult, onProcessing }) {
     // Retry once if server is cold-starting (network error only)
     const attemptFetch = async (attempt = 1) => {
       try {
-        return await fetch(API_URL, { method: 'POST', body: formData });
+        // Use 330 second timeout to match backend 300s timeout + buffer
+        return await fetch(API_URL, { 
+          method: 'POST', 
+          body: formData,
+          signal: AbortSignal.timeout(330_000) 
+        });
       } catch (networkErr) {
         if (attempt < 2) {
           await new Promise(r => setTimeout(r, 4000));

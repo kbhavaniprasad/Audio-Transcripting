@@ -66,6 +66,135 @@ function getIcon(key) {
 export default function ResultDisplay({ result, file, onReset }) {
   if (!result) return null;
 
+  // ── Check for error ──
+  const isError = result._error || result.error || (result.success === false);
+  const errorMessage = result._error || result.error || 'An unknown error occurred';
+
+  if (isError) {
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 32, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -20 }}
+          transition={{ duration: 0.55, ease: 'easeOut' }}
+          style={{
+            width: '100%',
+            maxWidth: '640px',
+            margin: '0 auto',
+            background: 'rgba(248,113,113,0.08)',
+            border: '1px solid rgba(248,113,113,0.25)',
+            borderRadius: '20px',
+            padding: '28px',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            boxShadow: '0 8px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(248,113,113,0.15)',
+          }}
+        >
+          {/* Error Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <div style={{
+              width: 40,
+              height: 40,
+              borderRadius: 10,
+              background: 'rgba(248,113,113,0.15)',
+              border: '1px solid rgba(248,113,113,0.4)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <div>
+              <h3 style={{ color: '#fca5a5', fontWeight: 600, fontSize: '1rem', letterSpacing: '-0.02em', margin: 0 }}>
+                Processing Failed
+              </h3>
+              {file && (
+                <p style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.75rem', marginTop: 4, margin: 0 }}>
+                  {file.name}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Error Message */}
+          <div style={{
+            background: 'rgba(0,0,0,0.3)',
+            border: '1px solid rgba(248,113,113,0.2)',
+            borderRadius: 10,
+            padding: '14px',
+            marginBottom: 20,
+          }}>
+            <p style={{
+              color: '#fecaca',
+              fontSize: '0.875rem',
+              lineHeight: 1.6,
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+              margin: 0,
+            }}>
+              {errorMessage}
+            </p>
+          </div>
+
+          {/* Troubleshooting tips */}
+          <div style={{
+            background: 'rgba(250,204,21,0.08)',
+            border: '1px solid rgba(250,204,21,0.2)',
+            borderRadius: 10,
+            padding: '14px',
+            marginBottom: 20,
+          }}>
+            <p style={{ color: '#facc15', fontSize: '0.75rem', fontWeight: 600, marginTop: 0, marginBottom: 8 }}>
+              💡 Troubleshooting Tips:
+            </p>
+            <ul style={{ margin: 0, paddingLeft: 18, color: 'rgba(255,255,255,0.6)', fontSize: '0.75rem', lineHeight: 1.8 }}>
+              <li>Verify your n8n instance is running</li>
+              <li>Check that the ngrok tunnel is active: <code style={{ background: 'rgba(0,0,0,0.4)', padding: '2px 6px', borderRadius: 4 }}>ngrok http 5678</code></li>
+              <li>Update N8N_WEBHOOK_URL in your .env with the current ngrok URL</li>
+              <li>Ensure the n8n workflow is in "Active" mode (not just testing)</li>
+              <li>Check n8n logs for detailed error information</li>
+            </ul>
+          </div>
+
+          {/* Reset button */}
+          <motion.button
+            onClick={onReset}
+            whileTap={{ scale: 0.97 }}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: 10,
+              border: '1px solid rgba(248,113,113,0.3)',
+              background: 'rgba(248,113,113,0.15)',
+              color: '#fca5a5',
+              fontSize: '0.875rem',
+              fontWeight: 500,
+              cursor: 'pointer',
+              fontFamily: 'Inter, sans-serif',
+              transition: 'all 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.target.style.background = 'rgba(248,113,113,0.25)';
+              e.target.style.borderColor = 'rgba(248,113,113,0.5)';
+            }}
+            onMouseLeave={e => {
+              e.target.style.background = 'rgba(248,113,113,0.15)';
+              e.target.style.borderColor = 'rgba(248,113,113,0.3)';
+            }}
+          >
+            ↺ Try Again
+          </motion.button>
+        </motion.div>
+      </AnimatePresence>
+    );
+  }
+
+  // ── Success case ──
   // If n8n returned a plain string, wrap it so we can display it
   const normalized = typeof result === 'string' ? { output: result } : result;
   const entries = Object.entries(normalized);
@@ -79,7 +208,6 @@ export default function ResultDisplay({ result, file, onReset }) {
       </div>
     );
   }
-
 
   return (
     <AnimatePresence>
@@ -148,6 +276,100 @@ export default function ResultDisplay({ result, file, onReset }) {
           {entries.map(([key, value], idx) => (
             <motion.div
               key={key}
+              initial={{ opacity: 0, x: -12 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: idx * 0.07, duration: 0.4, ease: 'easeOut' }}
+              className="result-field"
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ color: 'rgba(139,92,246,0.85)' }}>{getIcon(key)}</span>
+                <span style={{
+                  color: 'rgba(255,255,255,0.5)',
+                  fontSize: '0.72rem',
+                  fontWeight: 600,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                }}>
+                  {key.replace(/_/g, ' ')}
+                </span>
+              </div>
+              <div style={{
+                color: 'rgba(255,255,255,0.85)',
+                fontSize: '0.875rem',
+                lineHeight: 1.6,
+                whiteSpace: typeof value === 'string' ? 'pre-wrap' : 'normal',
+              }}>
+                {renderValue(value)}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Raw JSON toggle */}
+        <details style={{ marginTop: 16 }}>
+          <summary style={{
+            color: 'rgba(255,255,255,0.35)',
+            fontSize: '0.78rem',
+            cursor: 'pointer',
+            userSelect: 'none',
+            listStyle: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <polyline points="4 17 10 11 4 5" /><line x1="12" y1="19" x2="20" y2="19" />
+            </svg>
+            View raw JSON
+          </summary>
+          <pre style={{
+            marginTop: 10,
+            padding: '14px',
+            background: 'rgba(0,0,0,0.4)',
+            borderRadius: 10,
+            border: '1px solid rgba(255,255,255,0.06)',
+            color: '#7dd3fc',
+            fontSize: '0.75rem',
+            overflowX: 'auto',
+            lineHeight: 1.6,
+          }}>
+            {JSON.stringify(normalized, null, 2)}
+          </pre>
+        </details>
+
+        {/* Reset button */}
+        <motion.button
+          onClick={onReset}
+          whileTap={{ scale: 0.97 }}
+          style={{
+            marginTop: 20,
+            width: '100%',
+            padding: '12px',
+            borderRadius: 10,
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.04)',
+            color: 'rgba(255,255,255,0.6)',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            cursor: 'pointer',
+            fontFamily: 'Inter, sans-serif',
+            transition: 'all 0.2s',
+          }}
+          onMouseEnter={e => {
+            e.target.style.background = 'rgba(255,255,255,0.08)';
+            e.target.style.color = '#fff';
+          }}
+          onMouseLeave={e => {
+            e.target.style.background = 'rgba(255,255,255,0.04)';
+            e.target.style.color = 'rgba(255,255,255,0.6)';
+          }}
+        >
+          ↺ Upload Another File
+        </motion.button>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: idx * 0.07, duration: 0.4, ease: 'easeOut' }}
